@@ -55,7 +55,10 @@ test('golden path: login through checkout', async ({ page }) => {
   await page.getByRole('button', { name: 'M', exact: true }).click();
   await page.getByRole('button', { name: 'Black', exact: true }).click();
   await page.getByRole('button', { name: 'Add to cart' }).click();
-  await expect(page.getByRole('status')).toHaveText('Added to your cart.');
+  // Feedback arrives as a toast naming the product, not an inline message.
+  await expect(page.getByRole('status')).toContainText(
+    'Classic Cotton T-Shirt added to your cart.',
+  );
 
   await page.getByRole('button', { name: /Add to wishlist/ }).click();
   await expect(page.getByRole('button', { name: /In wishlist/ })).toBeVisible();
