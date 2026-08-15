@@ -38,7 +38,9 @@ export function CartPage() {
 
           <div className="mt-8 flex items-center justify-between border-t border-line pt-6">
             <span className="text-lg text-ink-soft">Total</span>
-            <span className="text-2xl">{formatPrice(cart.total)}</span>
+            <span className="text-2xl" data-testid="cart-total">
+              {formatPrice(cart.total)}
+            </span>
           </div>
 
           <div className="mt-6 flex justify-end">
