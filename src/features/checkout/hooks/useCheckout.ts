@@ -7,7 +7,7 @@ export function usePlaceOrder() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ordersApi.placeOrder,
+    mutationFn: (idempotencyKey: string) => ordersApi.placeOrder(idempotencyKey),
     onSuccess: () => {
       // Checkout clears the cart and decrements stock server-side, so both
       // caches are stale the moment the order succeeds.

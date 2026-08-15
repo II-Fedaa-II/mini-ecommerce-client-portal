@@ -2,19 +2,43 @@ import { Link } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { Button } from '@/shared/components/ui/button';
 import { EmptyState, ErrorState, LoadingState } from '@/shared/components/ui/states';
+import { useToast } from '@/shared/components/ui/toast';
+import { errorMessage } from '@/shared/lib/errorMessage';
 import { formatPrice } from '@/shared/lib/utils';
 import { useWishlist } from '../hooks/useWishlist';
 
 export function WishlistPage() {
   const { wishlist, isLoading, isError, refetch, removeItem } = useWishlist();
   const { addItem } = useCart();
+  const toast = useToast();
 
-  async function moveToCart(productId: string, hasVariants: boolean) {
-    // Products with variants need an explicit choice, so send the shopper to the
-    // detail page instead of silently picking options on their behalf.
-    if (hasVariants) return;
-    await addItem.mutateAsync({ productId, quantity: 1 });
-    await removeItem.mutateAsync(productId);
+  async function moveToCart(product: { id: string; title: string }) {
+    try {
+      await addItem.mutateAsync({ productId: product.id, quantity: 1 });
+    } catch (error) {
+      toast.error(errorMessage(error, 'Could not add that item to your cart.'));
+      return;
+    }
+
+    try {
+      await removeItem.mutateAsync(product.id);
+    } catch {
+      // The cart add succeeded, so the move mostly worked — say so rather than
+      // implying the whole action failed.
+      toast.error(`${product.title} was added to your cart but stayed in your wishlist.`);
+      return;
+    }
+
+    toast.success(`${product.title} moved to your cart.`);
+  }
+
+  async function removeFromWishlist(product: { id: string; title: string }) {
+    try {
+      await removeItem.mutateAsync(product.id);
+      toast.success(`${product.title} removed from your wishlist.`);
+    } catch (error) {
+      toast.error(errorMessage(error, 'Could not update your wishlist.'));
+    }
   }
 
   return (
@@ -60,7 +84,7 @@ export function WishlistPage() {
                   ) : (
                     <Button
                       size="sm"
-                      onClick={() => void moveToCart(product.id, hasVariants)}
+                      onClick={() => void moveToCart(product)}
                       disabled={addItem.isPending || product.stock === 0}
                     >
                       Move to cart
@@ -70,7 +94,7 @@ export function WishlistPage() {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() => removeItem.mutate(product.id)}
+                    onClick={() => void removeFromWishlist(product)}
                     disabled={removeItem.isPending}
                   >
                     Remove

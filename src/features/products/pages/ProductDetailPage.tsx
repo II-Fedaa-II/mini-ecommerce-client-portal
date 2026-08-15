@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useWishlist } from '@/features/wishlist/hooks/useWishlist';
-import { ApiError } from '@/shared/api/httpClient';
 import { Button } from '@/shared/components/ui/button';
+import { useToast } from '@/shared/components/ui/toast';
+import { errorMessage } from '@/shared/lib/errorMessage';
 import { ErrorState, LoadingState } from '@/shared/components/ui/states';
 import { cn, formatPrice } from '@/shared/lib/utils';
 import { VariantSelector } from '../components/VariantSelector';
@@ -19,7 +20,7 @@ export function ProductDetailPage() {
 
   const [selectedVariants, setSelectedVariants] = useState<VariantSelection[]>([]);
   const [quantity, setQuantity] = useState(1);
-  const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
+  const toast = useToast();
 
   if (isLoading) return <LoadingState label="Loading product" />;
   if (isError || !product) {
@@ -39,27 +40,35 @@ export function ProductDetailPage() {
 
   async function handleAddToCart() {
     if (missingVariant) {
-      setFeedback({ tone: 'error', message: `Please choose a ${missingVariant.name}.` });
+      toast.error(`Please choose a ${missingVariant.name}.`);
       return;
     }
 
     try {
-      await addItem.mutateAsync({ productId: loadedProduct.id, quantity, selectedVariants });
-      setFeedback({ tone: 'success', message: 'Added to your cart.' });
-    } catch (error) {
-      setFeedback({
-        tone: 'error',
-        message: error instanceof ApiError ? error.message : 'Could not add this item to your cart.',
+      await addItem.mutateAsync({
+        productId: loadedProduct.id,
+        quantity,
+        selectedVariants,
       });
+      toast.success(`${loadedProduct.title} added to your cart.`);
+    } catch (error) {
+      toast.error(
+        errorMessage(error, 'Could not add this item to your cart.'),
+      );
     }
   }
 
   async function handleWishlistToggle() {
     try {
-      if (wishlisted) await removeFromWishlist.mutateAsync(loadedProduct.id);
-      else await addToWishlist.mutateAsync(loadedProduct.id);
-    } catch {
-      setFeedback({ tone: 'error', message: 'Could not update your wishlist.' });
+      if (wishlisted) {
+        await removeFromWishlist.mutateAsync(loadedProduct.id);
+        toast.success('Removed from your wishlist.');
+      } else {
+        await addToWishlist.mutateAsync(loadedProduct.id);
+        toast.success('Saved to your wishlist.');
+      }
+    } catch (error) {
+      toast.error(errorMessage(error, 'Could not update your wishlist.'));
     }
   }
 
@@ -110,17 +119,6 @@ export function ProductDetailPage() {
         </Button>
       </div>
 
-      {feedback && (
-        <p
-          role="status"
-          className={cn(
-            'mt-4 border border-line bg-surface px-3 py-2 text-sm',
-            feedback.tone === 'success' ? 'text-success' : 'text-danger',
-          )}
-        >
-          {feedback.message}
-        </p>
-      )}
     </main>
   );
 }

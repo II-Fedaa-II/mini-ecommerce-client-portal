@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
-import { ApiError } from '@/shared/api/httpClient';
 import { Button } from '@/shared/components/ui/button';
+import { useToast } from '@/shared/components/ui/toast';
+import { errorMessage } from '@/shared/lib/errorMessage';
 import { EmptyState, ErrorState, LoadingState } from '@/shared/components/ui/states';
 import { formatPrice } from '@/shared/lib/utils';
 import { usePlaceOrder } from '../hooks/useCheckout';
@@ -11,15 +12,22 @@ export function CheckoutPage() {
   const { cart, isLoading, isError, refetch } = useCart();
   const placeOrder = usePlaceOrder();
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
+  const toast = useToast();
+
+  /**
+   * Generated once per mounted checkout, so a double-click or a retry after a flaky
+   * response reuses the same key and the server returns the original order instead of
+   * placing a second one.
+   */
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
 
   async function handlePlaceOrder() {
-    setError(null);
     try {
-      const order = await placeOrder.mutateAsync();
+      const order = await placeOrder.mutateAsync(idempotencyKey);
+      toast.success('Order placed.');
       void navigate(`/orders/${order.id}`, { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'We could not place your order.');
+      toast.error(errorMessage(err, 'We could not place your order.'));
     }
   }
 
@@ -70,11 +78,6 @@ export function CheckoutPage() {
             </div>
           </section>
 
-          {error && (
-            <p className="mt-4 border border-line bg-surface px-3 py-2 text-sm text-danger" role="alert">
-              {error}
-            </p>
-          )}
 
           <div className="mt-6 flex items-center justify-between">
             <Button asChild variant="ghost">
