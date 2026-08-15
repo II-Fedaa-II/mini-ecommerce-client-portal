@@ -19,44 +19,42 @@ export function Navbar() {
     void navigate('/login', { replace: true });
   }
 
-  const linkClass = ({ isActive }: { isActive: boolean }) =>
+  const iconLink = ({ isActive }: { isActive: boolean }) =>
     cn(
-      'relative inline-flex items-center gap-2 px-1 py-1 text-sm transition-colors',
-      isActive ? 'text-ink' : 'text-ink-soft hover:text-ink',
+      'relative flex h-10 items-center gap-2 border-2 px-3 text-[11px] font-bold tracking-[0.12em] uppercase transition-colors',
+      isActive ? 'border-ink bg-ink text-paper' : 'border-ink bg-transparent text-ink hover:bg-accent',
     );
 
   return (
-    <header className="border-b border-line bg-surface">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <NavLink to="/products" className="text-xl tracking-tight">
-          Mini E-Commerce
+    <header className="sticky top-0 z-40 border-b-2 border-ink bg-paper">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3">
+        <NavLink to="/products" className="display text-3xl tracking-tight">
+          Shop<span className="text-accent [-webkit-text-stroke:1px_var(--color-ink)]">hub</span>
         </NavLink>
 
-        <nav className="flex items-center gap-6">
-          <NavLink to="/products" className={linkClass}>
-            Catalogue
+        <nav className="flex items-center gap-2 sm:gap-3">
+          <NavLink to="/wishlist" className={iconLink} aria-label="Saved items">
+            <Heart className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+            <span className="hidden sm:inline">Saved</span>
+            {wishlistCount > 0 && <Badge value={wishlistCount} />}
           </NavLink>
 
-          <NavLink to="/wishlist" className={linkClass}>
-            <Heart className="h-4 w-4" aria-hidden />
-            Wishlist
-            {wishlistCount > 0 && <CountBadge value={wishlistCount} />}
+          <NavLink to="/cart" className={iconLink} aria-label="Shopping bag">
+            <ShoppingBag className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+            <span className="hidden sm:inline">Bag</span>
+            {cartCount > 0 && <Badge value={cartCount} />}
           </NavLink>
 
-          <NavLink to="/cart" className={linkClass}>
-            <ShoppingBag className="h-4 w-4" aria-hidden />
-            Cart
-            {cartCount > 0 && <CountBadge value={cartCount} />}
-          </NavLink>
-
-          <span className="hidden text-sm text-ink-muted sm:inline">{user?.name}</span>
+          <span className="hidden max-w-[12ch] truncate text-[11px] font-bold tracking-[0.12em] text-ink-soft uppercase md:inline">
+            {user?.name}
+          </span>
 
           <button
-            className="inline-flex items-center gap-2 text-sm text-ink-soft transition-colors hover:text-ink"
             onClick={() => void handleLogout()}
+            aria-label="Sign out"
+            className="flex h-10 w-10 items-center justify-center border-2 border-ink text-ink transition-colors hover:bg-ink hover:text-paper"
           >
-            <LogOut className="h-4 w-4" aria-hidden />
-            Sign out
+            <LogOut className="h-4 w-4" aria-hidden strokeWidth={2.5} />
           </button>
         </nav>
       </div>
@@ -64,8 +62,10 @@ export function Navbar() {
   );
 }
 
-function CountBadge({ value }: { value: number }) {
+function Badge({ value }: { value: number }) {
   return (
-    <span className="ml-1 min-w-5 border border-line px-1.5 text-center text-xs leading-5 text-ink-soft">{value}</span>
+    <span className="tabular absolute -top-2 -right-2 flex h-5 min-w-5 items-center justify-center border-2 border-ink bg-accent px-1 text-[10px] font-bold text-ink">
+      {value}
+    </span>
   );
 }

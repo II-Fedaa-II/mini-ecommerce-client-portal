@@ -1,36 +1,42 @@
 @import 'tailwindcss';
 
 @font-face {
-  font-family: 'Source Serif 4';
+  font-family: 'Big Shoulders Display';
   font-style: normal;
-  font-weight: 400 700;
+  font-weight: 400 900;
   font-display: swap;
-  src: url('./assets/fonts/source-serif-4-roman.woff2') format('woff2');
+  src: url('./assets/fonts/big-shoulders-display.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'Source Serif 4';
-  font-style: italic;
-  font-weight: 400 700;
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400 800;
   font-display: swap;
-  src: url('./assets/fonts/source-serif-4-italic.woff2') format('woff2');
+  src: url('./assets/fonts/archivo.woff2') format('woff2');
 }
 
 @theme {
-  --font-serif: 'Source Serif 4', ui-serif, Georgia, serif;
-  --font-sans: 'Source Serif 4', ui-serif, Georgia, serif;
+  --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
 
-  /* Flat, solid palette — deliberately no gradients anywhere in the UI. */
-  --color-ink: #1a1a18;
-  --color-ink-soft: #55534d;
-  --color-ink-muted: #8a877f;
-  --color-line: #e3e0d8;
+  /* Flat fields only — every colour is solid, no gradient anywhere in the system. */
+  --color-ink: #111110;
+  --color-ink-soft: #55534c;
+  --color-ink-muted: #86837a;
+  --color-paper: #f5f2ec;
   --color-surface: #ffffff;
-  --color-canvas: #faf9f5;
-  --color-accent: #b04a2f;
-  --color-accent-hover: #963e27;
-  --color-danger: #a12f2f;
-  --color-success: #3d6b48;
+  --color-line: #dcd7cb;
+  --color-rule: #111110;
+
+  /* The highlighter. Carries headlines, active chips, and the cart badge. */
+  --color-accent: #e4ff3c;
+  --color-accent-ink: #111110;
+
+  --color-danger: #c8321f;
+  --color-success: #1f6b3a;
+
+  --radius-card: 2px;
 }
 
 @layer base {
@@ -40,13 +46,60 @@
   }
 
   body {
-    background-color: var(--color-canvas);
+    background-color: var(--color-paper);
     color: var(--color-ink);
-    font-family: var(--font-serif);
+    font-family: var(--font-sans);
+  }
+
+  /* Browser surfaces the design still owns. */
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-ink);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 3px solid var(--color-ink);
     outline-offset: 2px;
+  }
+
+  input,
+  textarea,
+  select {
+    caret-color: var(--color-ink);
+  }
+
+  /* Prices and quantities line up in columns. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-paper);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-ink);
+    border: 3px solid var(--color-paper);
+  }
+}
+
+@layer components {
+  /* The signature move: a marker stroke laid behind a word. An inset shadow rather
+     than a background image, so the fill stays genuinely flat — no gradient function
+     anywhere in this system, including the two-identical-stops trick. */
+  .marker {
+    box-shadow: inset 0 -0.36em 0 var(--color-accent);
+    padding-inline: 0.12em;
+  }
+
+  .display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 0.86;
+    letter-spacing: -0.01em;
   }
 }

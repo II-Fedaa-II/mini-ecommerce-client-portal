@@ -1,12 +1,13 @@
-import { Heart } from 'lucide-react';
+import { Heart, Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useWishlist } from '@/features/wishlist/hooks/useWishlist';
 import { Button } from '@/shared/components/ui/button';
+import { ProductImage } from '@/shared/components/ui/ProductImage';
+import { ErrorState, LoadingState } from '@/shared/components/ui/states';
 import { useToast } from '@/shared/components/ui/toast';
 import { errorMessage } from '@/shared/lib/errorMessage';
-import { ErrorState, LoadingState } from '@/shared/components/ui/states';
 import { cn, formatPrice } from '@/shared/lib/utils';
 import { VariantSelector } from '../components/VariantSelector';
 import { useProduct } from '../hooks/useProducts';
@@ -25,7 +26,7 @@ export function ProductDetailPage() {
   if (isLoading) return <LoadingState label="Loading product" />;
   if (isError || !product) {
     return (
-      <main className="mx-auto max-w-3xl px-6 py-12">
+      <main className="mx-auto max-w-3xl px-6 py-16">
         <ErrorState message="We couldn't load this product." onRetry={() => void refetch()} />
       </main>
     );
@@ -40,7 +41,7 @@ export function ProductDetailPage() {
 
   async function handleAddToCart() {
     if (missingVariant) {
-      toast.error(`Please choose a ${missingVariant.name}.`);
+      toast.error(`Choose a ${missingVariant.name.toLowerCase()} first.`);
       return;
     }
 
@@ -50,11 +51,9 @@ export function ProductDetailPage() {
         quantity,
         selectedVariants,
       });
-      toast.success(`${loadedProduct.title} added to your cart.`);
+      toast.success(`${loadedProduct.title} added to your bag.`);
     } catch (error) {
-      toast.error(
-        errorMessage(error, 'Could not add this item to your cart.'),
-      );
+      toast.error(errorMessage(error, 'Could not add this item to your bag.'));
     }
   }
 
@@ -62,63 +61,120 @@ export function ProductDetailPage() {
     try {
       if (wishlisted) {
         await removeFromWishlist.mutateAsync(loadedProduct.id);
-        toast.success('Removed from your wishlist.');
+        toast.success('Removed from saved items.');
       } else {
         await addToWishlist.mutateAsync(loadedProduct.id);
-        toast.success('Saved to your wishlist.');
+        toast.success('Saved for later.');
       }
     } catch (error) {
-      toast.error(errorMessage(error, 'Could not update your wishlist.'));
+      toast.error(errorMessage(error, 'Could not update your saved items.'));
     }
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <Link to="/products" className="text-sm text-ink-soft underline underline-offset-4 hover:text-ink">
-        ← Back to catalogue
+    <main className="mx-auto max-w-6xl px-6 py-8 sm:py-12">
+      <Link
+        to="/products"
+        className="text-[11px] font-bold tracking-[0.14em] text-ink-soft uppercase transition-colors hover:text-ink"
+      >
+        ← All products
       </Link>
 
-      <header className="mt-6 border-b border-line pb-6">
-        <h1 className="text-3xl leading-tight tracking-tight">{product.title}</h1>
-        <p className="mt-2 text-xl text-ink-soft">{formatPrice(product.price)}</p>
-      </header>
-
-      <p className="mt-6 leading-relaxed text-ink-soft">{product.description}</p>
-
-      <p className="mt-4 text-sm text-ink-muted">
-        {isOutOfStock ? 'Currently out of stock' : `${product.stock} remaining in stock`}
-      </p>
-
-      {product.variants.length > 0 && (
-        <div className="mt-8">
-          <VariantSelector variants={product.variants} selected={selectedVariants} onChange={setSelectedVariants} />
+      <div className="mt-6 grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-12">
+        <div className="border-2 border-ink bg-surface">
+          <div className="aspect-square overflow-hidden bg-paper">
+            <ProductImage
+              src={loadedProduct.imageUrl}
+              alt={loadedProduct.title}
+              className="h-full w-full object-cover"
+              letterClassName="display text-9xl text-line"
+            />
+          </div>
         </div>
-      )}
 
-      <div className="mt-8 flex flex-col gap-3 border-t border-line pt-6 sm:flex-row sm:items-center">
-        <label className="flex items-center gap-3 text-sm text-ink-soft" htmlFor="quantity">
-          Quantity
-          <input
-            id="quantity"
-            type="number"
-            min={1}
-            max={Math.max(product.stock, 1)}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-            className="h-11 w-20 border border-line bg-surface px-3 text-base text-ink focus:border-accent focus:outline-none"
-          />
-        </label>
+        <div className="flex flex-col">
+          <h1 className="display text-[clamp(2.5rem,6vw,4.5rem)]">{loadedProduct.title}</h1>
 
-        <Button onClick={() => void handleAddToCart()} disabled={isOutOfStock || addItem.isPending}>
-          {addItem.isPending ? 'Adding…' : 'Add to cart'}
-        </Button>
+          <p className="display tabular mt-3 text-5xl">
+            <span className="marker">{formatPrice(loadedProduct.price)}</span>
+          </p>
 
-        <Button variant="outline" onClick={() => void handleWishlistToggle()}>
-          <Heart className={cn('h-4 w-4', wishlisted && 'fill-current text-accent')} aria-hidden />
-          {wishlisted ? 'In wishlist' : 'Add to wishlist'}
-        </Button>
+          <p className="mt-6 max-w-prose leading-relaxed text-ink-soft">
+            {loadedProduct.description}
+          </p>
+
+          <p
+            className={cn(
+              'mt-4 text-[11px] font-bold tracking-[0.14em] uppercase',
+              isOutOfStock ? 'text-danger' : 'text-ink-soft',
+            )}
+          >
+            {isOutOfStock ? 'Out of stock' : `${loadedProduct.stock} in stock`}
+          </p>
+
+          {loadedProduct.variants.length > 0 && (
+            <div className="mt-8 border-t-2 border-ink pt-8">
+              <VariantSelector
+                variants={loadedProduct.variants}
+                selected={selectedVariants}
+                onChange={setSelectedVariants}
+              />
+            </div>
+          )}
+
+          <div className="mt-8 flex flex-wrap items-stretch gap-3 border-t-2 border-ink pt-8">
+            <div className="flex items-center border-2 border-ink">
+              <button
+                type="button"
+                aria-label="Decrease quantity"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                className="flex h-12 w-11 items-center justify-center transition-colors hover:bg-accent"
+              >
+                <Minus className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+              </button>
+
+              <span
+                className="tabular w-12 text-center text-lg font-bold"
+                aria-live="polite"
+                aria-label={`Quantity ${quantity}`}
+              >
+                {quantity}
+              </span>
+
+              <button
+                type="button"
+                aria-label="Increase quantity"
+                onClick={() => setQuantity((q) => Math.min(Math.max(loadedProduct.stock, 1), q + 1))}
+                className="flex h-12 w-11 items-center justify-center transition-colors hover:bg-accent"
+              >
+                <Plus className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+              </button>
+            </div>
+
+            <Button
+              className="flex-1"
+              onClick={() => void handleAddToCart()}
+              disabled={isOutOfStock || addItem.isPending}
+            >
+              {addItem.isPending ? 'Adding…' : 'Add to bag'}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-12 w-12"
+              aria-label={wishlisted ? 'Remove from saved items' : 'Save for later'}
+              onClick={() => void handleWishlistToggle()}
+            >
+              <Heart
+                className={cn('h-5 w-5', wishlisted && 'fill-current')}
+                aria-hidden
+                strokeWidth={2.5}
+              />
+            </Button>
+          </div>
+        </div>
       </div>
-
     </main>
   );
 }

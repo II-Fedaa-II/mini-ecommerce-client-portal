@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApiError } from '@/shared/api/httpClient';
 import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
+import { FieldLabel, Input } from '@/shared/components/ui/input';
 import { useAuth } from '../hooks/useAuth';
 
 export function LoginPage() {
@@ -32,56 +32,82 @@ export function LoginPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-16">
-      <div className="mb-10">
-        <h1 className="text-4xl tracking-tight">Mini E-Commerce</h1>
-        <p className="mt-2 text-ink-soft">Sign in to browse the catalogue.</p>
-      </div>
+    <div className="grid min-h-screen lg:grid-cols-2">
+      {/* Left plate carries the identity so the form itself can stay plain. */}
+      <section className="hidden flex-col justify-between border-r-2 border-ink bg-ink p-10 text-paper lg:flex">
+        <p className="display text-3xl text-paper">
+          Shop<span className="text-accent">hub</span>
+        </p>
 
-      <form className="flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
-        <div className="flex flex-col gap-2">
-          <label className="text-sm text-ink-soft" htmlFor="email">
-            Email
-          </label>
-          <Input
-            id="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+        <h1 className="display text-[clamp(4rem,8vw,7rem)] text-paper">
+          Fifteen
+          <br />
+          things
+          <br />
+          <span className="text-accent">worth</span>
+          <br />
+          owning.
+        </h1>
 
-        <div className="flex flex-col gap-2">
-          <label className="text-sm text-ink-soft" htmlFor="password">
-            Password
-          </label>
-          <Input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        <p className="max-w-xs text-sm leading-relaxed text-paper/60">
+          Photographed properly, priced without theatre, and in the warehouse today.
+        </p>
+      </section>
 
-        {error && (
-          <p className="border border-line bg-surface px-3 py-2 text-sm text-danger" role="alert">
-            {error}
+      <main className="flex items-center justify-center px-6 py-16">
+        <div className="w-full max-w-sm">
+          <p className="display text-4xl lg:hidden">
+            Shop<span className="text-accent [-webkit-text-stroke:1px_var(--color-ink)]">hub</span>
           </p>
-        )}
 
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Signing in…' : 'Sign in'}
-        </Button>
-      </form>
+          <h2 className="display mt-2 text-5xl lg:mt-0">Sign in</h2>
+          <p className="mt-2 text-sm text-ink-soft">Your bag and saved items are waiting.</p>
 
-      <p className="mt-8 border-t border-line pt-6 text-sm text-ink-muted">
-        Demo account — <span className="text-ink-soft">demo@mini-ecommerce.test</span> /{' '}
-        <span className="text-ink-soft">Password123!</span>
-      </p>
-    </main>
+          <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit} noValidate>
+            <div className="flex flex-col gap-2">
+              <FieldLabel htmlFor="email">Email</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <FieldLabel htmlFor="password">Password</FieldLabel>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+
+            {error && (
+              <p className="border-2 border-danger bg-surface px-3 py-2.5 text-sm text-danger" role="alert">
+                {error}
+              </p>
+            )}
+
+            <Button type="submit" size="lg" disabled={isSubmitting}>
+              {isSubmitting ? 'Signing in…' : 'Sign in'}
+            </Button>
+          </form>
+
+          <div className="mt-8 border-2 border-dashed border-line p-4">
+            <p className="text-[11px] font-bold tracking-[0.14em] text-ink-soft uppercase">
+              Demo account
+            </p>
+            <p className="mt-2 text-sm text-ink">demo@mini-ecommerce.test</p>
+            <p className="text-sm text-ink">Password123!</p>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }

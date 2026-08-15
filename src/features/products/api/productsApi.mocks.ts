@@ -13,6 +13,8 @@ export const mockProducts: Product[] = [
       { name: 'Size', options: ['S', 'M', 'L'] },
       { name: 'Color', options: ['Black', 'White'] },
     ],
+    imageUrl: null,
+    version: 1,
   },
   {
     id: 'product-2',
@@ -21,6 +23,8 @@ export const mockProducts: Product[] = [
     price: 9.99,
     stock: 0,
     variants: [],
+    imageUrl: null,
+    version: 1,
   },
 ];
 

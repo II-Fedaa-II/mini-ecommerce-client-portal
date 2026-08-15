@@ -44,37 +44,39 @@ test('golden path: login through checkout', async ({ page }) => {
   await page.getByLabel('Password').fill(DEMO_PASSWORD);
   await page.getByRole('button', { name: 'Sign in' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Catalogue' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Everything/ })).toBeVisible();
   await expect(page.getByRole('link', { name: /Classic Cotton T-Shirt/ })).toBeVisible();
 
   await page.getByRole('link', { name: /Classic Cotton T-Shirt/ }).first().click();
 
   await expect(page.getByRole('heading', { name: 'Classic Cotton T-Shirt' })).toBeVisible();
-  await expect(page.getByText(/remaining in stock/)).toBeVisible();
+  await expect(page.getByText(/in stock/)).toBeVisible();
 
   await page.getByRole('button', { name: 'M', exact: true }).click();
   await page.getByRole('button', { name: 'Black', exact: true }).click();
-  await page.getByRole('button', { name: 'Add to cart' }).click();
+  await page.getByRole('button', { name: 'Add to bag' }).click();
   // Feedback arrives as a toast naming the product, not an inline message.
   await expect(page.getByRole('status')).toContainText(
-    'Classic Cotton T-Shirt added to your cart.',
+    'Classic Cotton T-Shirt added to your bag.',
   );
 
-  await page.getByRole('button', { name: /Add to wishlist/ }).click();
-  await expect(page.getByRole('button', { name: /In wishlist/ })).toBeVisible();
+  await page.getByRole('button', { name: /Save for later/ }).click();
+  await expect(page.getByRole('button', { name: /Remove from saved items/ })).toBeVisible();
 
-  await page.getByRole('link', { name: /Wishlist/ }).click();
-  await expect(page.getByRole('heading', { name: 'Wishlist' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Classic Cotton T-Shirt' })).toBeVisible();
+  await page.getByRole('link', { name: /Saved items/ }).click();
+  await expect(page.getByRole('heading', { name: 'Saved for later' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Classic Cotton T-Shirt' }).first()).toBeVisible();
 
-  await page.getByRole('link', { name: /Cart/ }).click();
-  await expect(page.getByRole('heading', { name: 'Your cart' })).toBeVisible();
+  await page.getByRole('link', { name: /Shopping bag/ }).click();
+  await expect(page.getByRole('heading', { name: 'Your bag' })).toBeVisible();
   await expect(page.getByText('Size: M · Color: Black')).toBeVisible();
 
-  await page.getByLabel(/Quantity for Classic Cotton T-Shirt/).fill('3');
+  const increaseQty = page.getByLabel('Increase quantity of Classic Cotton T-Shirt');
+  await increaseQty.click();
+  await increaseQty.click();
   await expect(page.getByTestId('cart-total')).toHaveText('$59.97');
 
-  await page.getByRole('link', { name: 'Proceed to checkout' }).click();
+  await page.getByRole('link', { name: 'Checkout' }).click();
   await expect(page.getByRole('heading', { name: 'Checkout' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Order summary' })).toBeVisible();
 
@@ -84,6 +86,6 @@ test('golden path: login through checkout', async ({ page }) => {
   await expect(page.getByText('Total paid')).toBeVisible();
 
   // Checkout must clear the cart server-side, not just locally.
-  await page.getByRole('link', { name: /Cart/ }).click();
-  await expect(page.getByText('Your cart is empty')).toBeVisible();
+  await page.getByRole('link', { name: /Shopping bag/ }).click();
+  await expect(page.getByText('Nothing in here yet')).toBeVisible();
 });

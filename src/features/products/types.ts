@@ -10,6 +10,8 @@ export interface Product {
   price: number;
   stock: number;
   variants: ProductVariant[];
+  imageUrl: string | null;
+  version: number;
 }
 
 export interface VariantSelection {

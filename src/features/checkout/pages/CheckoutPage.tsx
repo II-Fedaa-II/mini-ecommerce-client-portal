@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { Button } from '@/shared/components/ui/button';
+import { EmptyState, ErrorState, LoadingState } from '@/shared/components/ui/states';
 import { useToast } from '@/shared/components/ui/toast';
 import { errorMessage } from '@/shared/lib/errorMessage';
-import { EmptyState, ErrorState, LoadingState } from '@/shared/components/ui/states';
 import { formatPrice } from '@/shared/lib/utils';
 import { usePlaceOrder } from '../hooks/useCheckout';
 
@@ -32,20 +32,21 @@ export function CheckoutPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="mb-8 text-3xl tracking-tight">Checkout</h1>
+    <main className="mx-auto max-w-4xl px-6 py-10 sm:py-14">
+      <header className="mb-8 border-b-2 border-ink pb-6">
+        <h1 className="display text-[clamp(3rem,9vw,6rem)]">Checkout</h1>
+      </header>
 
-      {isLoading && <LoadingState label="Loading your order summary" />}
-
-      {isError && <ErrorState message="We couldn't load your cart." onRetry={() => void refetch()} />}
+      {isLoading && <LoadingState label="Loading your order" />}
+      {isError && <ErrorState message="We couldn't load your bag." onRetry={() => void refetch()} />}
 
       {cart && cart.items.length === 0 && (
         <EmptyState
           title="Nothing to check out"
-          description="Your cart is empty."
+          description="Your bag is empty."
           action={
-            <Button asChild variant="outline">
-              <Link to="/products">Browse catalogue</Link>
+            <Button asChild>
+              <Link to="/products">Browse the catalogue</Link>
             </Button>
           }
         />
@@ -53,44 +54,50 @@ export function CheckoutPage() {
 
       {cart && cart.items.length > 0 && (
         <>
-          <section className="border border-line bg-surface">
-            <h2 className="border-b border-line px-6 py-4 text-lg">Order summary</h2>
+          <section className="border-2 border-ink bg-surface">
+            <h2 className="border-b-2 border-ink bg-accent px-6 py-3">
+              <span className="display text-2xl">Order summary</span>
+            </h2>
 
             <ul className="px-6">
               {cart.items.map((line) => (
-                <li key={line.itemId} className="flex justify-between gap-4 border-b border-line py-4 last:border-b-0">
-                  <div>
-                    <p>{line.title}</p>
-                    <p className="mt-1 text-sm text-ink-muted">
+                <li
+                  key={line.itemId}
+                  className="flex justify-between gap-6 border-b-2 border-line py-4 last:border-b-0"
+                >
+                  <div className="min-w-0">
+                    <p className="display text-xl leading-none">{line.title}</p>
+                    <p className="mt-1.5 text-[11px] font-semibold tracking-[0.1em] text-ink-soft uppercase">
                       Qty {line.quantity}
                       {line.selectedVariants.length > 0 &&
                         ` · ${line.selectedVariants.map((v) => `${v.name}: ${v.value}`).join(' · ')}`}
                     </p>
                   </div>
-                  <p>{formatPrice(line.subtotal)}</p>
+                  <p className="tabular shrink-0 font-semibold">{formatPrice(line.subtotal)}</p>
                 </li>
               ))}
             </ul>
 
-            <div className="flex justify-between border-t border-line px-6 py-4">
-              <span className="text-ink-soft">Total</span>
-              <span className="text-xl">{formatPrice(cart.total)}</span>
+            <div className="flex items-baseline justify-between border-t-2 border-ink px-6 py-4">
+              <span className="text-[11px] font-bold tracking-[0.14em] text-ink-soft uppercase">
+                Total
+              </span>
+              <span className="display tabular text-4xl">{formatPrice(cart.total)}</span>
             </div>
           </section>
 
-
-          <div className="mt-6 flex items-center justify-between">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
             <Button asChild variant="ghost">
-              <Link to="/cart">Back to cart</Link>
+              <Link to="/cart">← Back to bag</Link>
             </Button>
 
-            <Button onClick={() => void handlePlaceOrder()} disabled={placeOrder.isPending}>
+            <Button size="lg" onClick={() => void handlePlaceOrder()} disabled={placeOrder.isPending}>
               {placeOrder.isPending ? 'Placing order…' : 'Place order'}
             </Button>
           </div>
 
-          <p className="mt-4 text-sm text-ink-muted">
-            No payment is taken — this is a mocked checkout for the assessment.
+          <p className="mt-4 text-right text-[11px] font-semibold tracking-[0.1em] text-ink-muted uppercase">
+            No payment is taken — this is a mocked checkout
           </p>
         </>
       )}

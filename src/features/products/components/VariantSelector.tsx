@@ -17,13 +17,17 @@ export function VariantSelector({ variants, selected, onChange }: VariantSelecto
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       {variants.map((variant) => {
         const activeValue = selected.find((entry) => entry.name === variant.name)?.value;
 
         return (
           <fieldset key={variant.name}>
-            <legend className="mb-2 text-sm text-ink-soft">{variant.name}</legend>
+            <legend className="mb-2.5 text-[11px] font-bold tracking-[0.14em] text-ink-soft uppercase">
+              {variant.name}
+              {activeValue && <span className="ml-2 text-ink normal-case">{activeValue}</span>}
+            </legend>
+
             <div className="flex flex-wrap gap-2">
               {variant.options.map((option) => {
                 const isActive = activeValue === option;
@@ -34,10 +38,10 @@ export function VariantSelector({ variants, selected, onChange }: VariantSelecto
                     aria-pressed={isActive}
                     onClick={() => selectOption(variant.name, option)}
                     className={cn(
-                      'border px-3 py-1.5 text-sm transition-colors',
+                      'min-w-12 border-2 px-3.5 py-2 text-sm font-semibold uppercase transition-colors',
                       isActive
-                        ? 'border-ink bg-ink text-white'
-                        : 'border-line bg-surface text-ink-soft hover:border-ink-muted hover:text-ink',
+                        ? 'border-ink bg-ink text-paper'
+                        : 'border-line bg-surface text-ink hover:border-ink',
                     )}
                   >
                     {option}
