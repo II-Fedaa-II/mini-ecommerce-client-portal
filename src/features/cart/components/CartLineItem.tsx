@@ -88,7 +88,7 @@ export function CartLineItem({ line }: { line: CartLine }) {
                 type="button"
                 aria-label={`Decrease quantity of ${line.title}`}
                 onClick={() => changeQuantity(Math.max(1, line.quantity - 1))}
-                disabled={line.quantity <= 1}
+                disabled={line.quantity <= 1 || updateItem.isPending}
                 className="flex h-9 w-9 items-center justify-center transition-colors hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <Minus className="h-3.5 w-3.5" aria-hidden strokeWidth={3} />
@@ -105,7 +105,8 @@ export function CartLineItem({ line }: { line: CartLine }) {
                 type="button"
                 aria-label={`Increase quantity of ${line.title}`}
                 onClick={() => changeQuantity(line.quantity + 1)}
-                className="flex h-9 w-9 items-center justify-center transition-colors hover:bg-accent"
+                disabled={updateItem.isPending}
+                className="flex h-9 w-9 items-center justify-center transition-colors hover:bg-accent disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <Plus className="h-3.5 w-3.5" aria-hidden strokeWidth={3} />
               </button>
