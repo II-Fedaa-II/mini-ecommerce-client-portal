@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { cartKeys } from '@/features/cart/hooks/useCart';
 import { productKeys } from '@/features/products/hooks/useProducts';
 import { ordersApi } from '../api/ordersApi';
@@ -19,4 +19,12 @@ export function usePlaceOrder() {
 
 export function useOrder(id: string) {
   return useQuery({ queryKey: ['orders', id], queryFn: () => ordersApi.getById(id), enabled: Boolean(id) });
+}
+
+export function useOrderHistory(page: number, limit: number) {
+  return useQuery({
+    queryKey: ['orders', 'mine', page, limit],
+    queryFn: () => ordersApi.listMine(page, limit),
+    placeholderData: keepPreviousData,
+  });
 }

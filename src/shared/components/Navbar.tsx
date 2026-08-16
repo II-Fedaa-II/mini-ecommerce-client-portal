@@ -1,4 +1,4 @@
-import { Heart, LogOut, ShoppingBag } from 'lucide-react';
+import { Heart, LogOut, Receipt, ShoppingBag } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useCart } from '@/features/cart/hooks/useCart';
@@ -43,6 +43,11 @@ export function Navbar() {
             <ShoppingBag className="h-4 w-4" aria-hidden strokeWidth={2.5} />
             <span className="hidden sm:inline">Bag</span>
             {cartCount > 0 && <Badge value={cartCount} />}
+          </NavLink>
+
+          <NavLink to="/orders" className={iconLink} aria-label="Your orders">
+            <Receipt className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+            <span className="hidden sm:inline">Orders</span>
           </NavLink>
 
           <span className="hidden max-w-[12ch] truncate text-[11px] font-bold tracking-[0.12em] text-ink-soft uppercase md:inline">

@@ -15,3 +15,11 @@ export interface Order {
   total: number;
   createdAt: string;
 }
+
+export interface PaginatedOrders {
+  items: Order[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

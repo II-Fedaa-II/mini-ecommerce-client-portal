@@ -5,6 +5,7 @@ import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { CartPage } from '@/features/cart/pages/CartPage';
 import { CheckoutPage } from '@/features/checkout/pages/CheckoutPage';
 import { OrderConfirmationPage } from '@/features/checkout/pages/OrderConfirmationPage';
+import { OrderHistoryPage } from '@/features/checkout/pages/OrderHistoryPage';
 import { ProductDetailPage } from '@/features/products/pages/ProductDetailPage';
 import { ProductListingPage } from '@/features/products/pages/ProductListingPage';
 import { WishlistPage } from '@/features/wishlist/pages/WishlistPage';
@@ -21,6 +22,7 @@ export function App() {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/orders" element={<OrderHistoryPage />} />
           <Route path="/orders/:id" element={<OrderConfirmationPage />} />
         </Route>
       </Route>
