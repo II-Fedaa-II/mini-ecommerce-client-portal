@@ -18,3 +18,23 @@ export interface VariantSelection {
   name: string;
   value: string;
 }
+
+export type ProductSort = 'newest' | 'price_asc' | 'price_desc' | 'title_asc';
+
+export interface ProductListQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  sort?: ProductSort;
+}
+
+export interface PaginatedProducts {
+  items: Product[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

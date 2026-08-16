@@ -29,7 +29,15 @@ export const mockProducts: Product[] = [
 ];
 
 export const productHandlers = [
-  http.get(`${API_URL}/products`, () => HttpResponse.json(mockProducts)),
+  http.get(`${API_URL}/products`, () =>
+    HttpResponse.json({
+      items: mockProducts,
+      total: mockProducts.length,
+      page: 1,
+      limit: mockProducts.length,
+      totalPages: 1,
+    }),
+  ),
   http.get(`${API_URL}/products/:id`, ({ params }) => {
     const product = mockProducts.find((entry) => entry.id === params.id);
     return product ? HttpResponse.json(product) : new HttpResponse(null, { status: 404 });
