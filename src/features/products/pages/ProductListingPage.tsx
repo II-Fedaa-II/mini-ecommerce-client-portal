@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import { ErrorState, LoadingState } from '@/shared/components/ui/states';
+import { errorMessage } from '@/shared/lib/errorMessage';
 import { ProductCard } from '../components/ProductCard';
 import { ProductFilters } from '../components/ProductFilters';
 import { useProducts } from '../hooks/useProducts';
 import type { ProductSort } from '../types';
 
-const PAGE_SIZE = 9;
+const PAGE_SIZE = 8;
 
 export function ProductListingPage() {
   const [page, setPage] = useState(1);
@@ -29,7 +30,7 @@ export function ProductListingPage() {
     [page, sort, search, minPrice, maxPrice, inStock],
   );
 
-  const { data, isLoading, isError, isPlaceholderData, refetch } = useProducts(query);
+  const { data, isLoading, isError, error, isPlaceholderData, refetch } = useProducts(query);
 
   const hasActiveFilters = Boolean(search || minPrice || maxPrice || inStock);
 
@@ -95,7 +96,10 @@ export function ProductListingPage() {
 
         {isLoading && <LoadingState label="Loading the catalogue" />}
         {isError && (
-          <ErrorState message="We couldn't load the catalogue." onRetry={() => void refetch()} />
+          <ErrorState
+            message={errorMessage(error, "We couldn't load the catalogue.")}
+            onRetry={() => void refetch()}
+          />
         )}
 
         {data && data.items.length === 0 && (
@@ -108,7 +112,7 @@ export function ProductListingPage() {
           <div
             className={isPlaceholderData ? 'opacity-50 transition-opacity' : 'transition-opacity'}
           >
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data.items.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

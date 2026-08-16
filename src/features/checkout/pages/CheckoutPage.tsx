@@ -9,7 +9,7 @@ import { formatPrice } from '@/shared/lib/utils';
 import { usePlaceOrder } from '../hooks/useCheckout';
 
 export function CheckoutPage() {
-  const { cart, isLoading, isError, refetch } = useCart();
+  const { cart, isLoading, isError, error, refetch } = useCart();
   const placeOrder = usePlaceOrder();
   const navigate = useNavigate();
   const toast = useToast();
@@ -38,7 +38,9 @@ export function CheckoutPage() {
       </header>
 
       {isLoading && <LoadingState label="Loading your order" />}
-      {isError && <ErrorState message="We couldn't load your bag." onRetry={() => void refetch()} />}
+      {isError && (
+        <ErrorState message={errorMessage(error, "We couldn't load your bag.")} onRetry={() => void refetch()} />
+      )}
 
       {cart && cart.items.length === 0 && (
         <EmptyState

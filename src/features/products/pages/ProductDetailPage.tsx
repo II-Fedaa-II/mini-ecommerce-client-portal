@@ -15,7 +15,7 @@ import type { VariantSelection } from '../types';
 
 export function ProductDetailPage() {
   const { id = '' } = useParams();
-  const { data: product, isLoading, isError, refetch } = useProduct(id);
+  const { data: product, isLoading, isError, error, refetch } = useProduct(id);
   const { addItem } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
@@ -27,7 +27,10 @@ export function ProductDetailPage() {
   if (isError || !product) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-16">
-        <ErrorState message="We couldn't load this product." onRetry={() => void refetch()} />
+        <ErrorState
+          message={errorMessage(error, "We couldn't load this product.")}
+          onRetry={() => void refetch()}
+        />
       </main>
     );
   }

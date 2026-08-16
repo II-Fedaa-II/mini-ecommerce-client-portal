@@ -2,18 +2,22 @@ import { Check } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/button';
 import { ErrorState, LoadingState } from '@/shared/components/ui/states';
+import { errorMessage } from '@/shared/lib/errorMessage';
 import { formatPrice } from '@/shared/lib/utils';
 import { useOrder } from '../hooks/useCheckout';
 
 export function OrderConfirmationPage() {
   const { id = '' } = useParams();
-  const { data: order, isLoading, isError, refetch } = useOrder(id);
+  const { data: order, isLoading, isError, error, refetch } = useOrder(id);
 
   if (isLoading) return <LoadingState label="Loading your order" />;
   if (isError || !order) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-14">
-        <ErrorState message="We couldn't load this order." onRetry={() => void refetch()} />
+        <ErrorState
+          message={errorMessage(error, "We couldn't load this order.")}
+          onRetry={() => void refetch()}
+        />
       </main>
     );
   }

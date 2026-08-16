@@ -22,6 +22,7 @@ export function useWishlist() {
     wishlist: query.data,
     isLoading: query.isLoading,
     isError: query.isError,
+    error: query.error,
     refetch: query.refetch,
     addItem,
     removeItem,

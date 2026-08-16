@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/button';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import { EmptyState, ErrorState, LoadingState } from '@/shared/components/ui/states';
+import { errorMessage } from '@/shared/lib/errorMessage';
 import { formatPrice } from '@/shared/lib/utils';
 import { useOrderHistory } from '../hooks/useCheckout';
 
@@ -11,7 +12,7 @@ const PAGE_SIZE = 8;
 
 export function OrderHistoryPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, isPlaceholderData, refetch } = useOrderHistory(page, PAGE_SIZE);
+  const { data, isLoading, isError, error, isPlaceholderData, refetch } = useOrderHistory(page, PAGE_SIZE);
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10 sm:py-14">
@@ -21,7 +22,10 @@ export function OrderHistoryPage() {
 
       {isLoading && <LoadingState label="Loading your orders" />}
       {isError && (
-        <ErrorState message="We couldn't load your orders." onRetry={() => void refetch()} />
+        <ErrorState
+          message={errorMessage(error, "We couldn't load your orders.")}
+          onRetry={() => void refetch()}
+        />
       )}
 
       {data && data.items.length === 0 && (

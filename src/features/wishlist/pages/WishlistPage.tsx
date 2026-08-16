@@ -9,7 +9,7 @@ import { formatPrice } from '@/shared/lib/utils';
 import { useWishlist } from '../hooks/useWishlist';
 
 export function WishlistPage() {
-  const { wishlist, isLoading, isError, refetch, removeItem } = useWishlist();
+  const { wishlist, isLoading, isError, error, refetch, removeItem } = useWishlist();
   const { addItem } = useCart();
   const toast = useToast();
 
@@ -48,7 +48,10 @@ export function WishlistPage() {
 
       {isLoading && <LoadingState label="Loading your saved items" />}
       {isError && (
-        <ErrorState message="We couldn't load your saved items." onRetry={() => void refetch()} />
+        <ErrorState
+          message={errorMessage(error, "We couldn't load your saved items.")}
+          onRetry={() => void refetch()}
+        />
       )}
 
       {wishlist && wishlist.length === 0 && (

@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/button';
 import { EmptyState, ErrorState, LoadingState } from '@/shared/components/ui/states';
+import { errorMessage } from '@/shared/lib/errorMessage';
 import { formatPrice } from '@/shared/lib/utils';
 import { CartLineItem } from '../components/CartLineItem';
 import { useCart } from '../hooks/useCart';
 
 export function CartPage() {
-  const { cart, isLoading, isError, refetch } = useCart();
+  const { cart, isLoading, isError, error, refetch } = useCart();
   const itemCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
 
   return (
@@ -21,7 +22,9 @@ export function CartPage() {
       </header>
 
       {isLoading && <LoadingState label="Loading your bag" />}
-      {isError && <ErrorState message="We couldn't load your bag." onRetry={() => void refetch()} />}
+      {isError && (
+        <ErrorState message={errorMessage(error, "We couldn't load your bag.")} onRetry={() => void refetch()} />
+      )}
 
       {cart && cart.items.length === 0 && (
         <EmptyState
