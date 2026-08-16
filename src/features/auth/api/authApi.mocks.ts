@@ -1,11 +1,12 @@
 import { http, HttpResponse } from 'msw';
 import { API_URL } from '@/shared/api/httpClient';
-import type { AuthUser } from '../types';
+import { PERMISSIONS, type AuthUser } from '../types';
 
 export const mockUser: AuthUser = {
   id: 'user-1',
   email: 'demo@mini-ecommerce.test',
   name: 'Demo Customer',
+  role: { id: 'role-customer', name: 'customer', permissions: Object.values(PERMISSIONS) },
 };
 
 export const authHandlers = [
@@ -30,7 +31,10 @@ export const authHandlers = [
     }
 
     return HttpResponse.json(
-      { accessToken: 'mock-access-token', user: { id: 'user-2', email: body.email, name: body.name } },
+      {
+        accessToken: 'mock-access-token',
+        user: { id: 'user-2', email: body.email, name: body.name, role: mockUser.role },
+      },
       { status: 201 },
     );
   }),

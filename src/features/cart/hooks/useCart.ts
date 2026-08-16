@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { PERMISSIONS } from '@/features/auth/types';
 import { productKeys } from '@/features/products/hooks/useProducts';
 import { cartApi } from '../api/cartApi';
 import type { Cart } from '../types';
@@ -7,10 +8,14 @@ import type { Cart } from '../types';
 export const cartKeys = { all: ['cart'] as const };
 
 export function useCart() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, can } = useAuth();
   const queryClient = useQueryClient();
 
-  const query = useQuery({ queryKey: cartKeys.all, queryFn: cartApi.get, enabled: isAuthenticated });
+  const query = useQuery({
+    queryKey: cartKeys.all,
+    queryFn: cartApi.get,
+    enabled: isAuthenticated && can(PERMISSIONS.CART_MANAGE),
+  });
 
   // Every mutation returns the authoritative cart, so we seed the cache with the
   // response instead of triggering a second round-trip to refetch it.

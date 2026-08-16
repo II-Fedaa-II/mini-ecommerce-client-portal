@@ -1,6 +1,8 @@
 import { Heart, Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { PERMISSIONS } from '@/features/auth/types';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useWishlist } from '@/features/wishlist/hooks/useWishlist';
 import { Button } from '@/shared/components/ui/button';
@@ -15,9 +17,13 @@ import type { VariantSelection } from '../types';
 
 export function ProductDetailPage() {
   const { id = '' } = useParams();
+  const { can } = useAuth();
   const { data: product, isLoading, isError, error, refetch } = useProduct(id);
   const { addItem } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+
+  const canUseCart = can(PERMISSIONS.CART_MANAGE);
+  const canUseWishlist = can(PERMISSIONS.WISHLIST_MANAGE);
 
   const [selectedVariants, setSelectedVariants] = useState<VariantSelection[]>([]);
   const [quantity, setQuantity] = useState(1);
@@ -154,27 +160,31 @@ export function ProductDetailPage() {
               </button>
             </div>
 
-            <Button
-              className="flex-1"
-              onClick={() => void handleAddToCart()}
-              disabled={isOutOfStock || addItem.isPending}
-            >
-              {addItem.isPending ? 'Adding…' : 'Add to bag'}
-            </Button>
+            {canUseCart && (
+              <Button
+                className="flex-1"
+                onClick={() => void handleAddToCart()}
+                disabled={isOutOfStock || addItem.isPending}
+              >
+                {addItem.isPending ? 'Adding…' : 'Add to bag'}
+              </Button>
+            )}
 
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-12 w-12"
-              aria-label={wishlisted ? 'Remove from saved items' : 'Save for later'}
-              onClick={() => void handleWishlistToggle()}
-            >
-              <Heart
-                className={cn('h-5 w-5', wishlisted && 'fill-current')}
-                aria-hidden
-                strokeWidth={2.5}
-              />
-            </Button>
+            {canUseWishlist && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12"
+                aria-label={wishlisted ? 'Remove from saved items' : 'Save for later'}
+                onClick={() => void handleWishlistToggle()}
+              >
+                <Heart
+                  className={cn('h-5 w-5', wishlisted && 'fill-current')}
+                  aria-hidden
+                  strokeWidth={2.5}
+                />
+              </Button>
+            )}
           </div>
         </div>
       </div>

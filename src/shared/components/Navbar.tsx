@@ -1,15 +1,20 @@
 import { Heart, LogOut, Receipt, ShoppingBag } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { PERMISSIONS } from '@/features/auth/types';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { useWishlist } from '@/features/wishlist/hooks/useWishlist';
 import { cn } from '@/shared/lib/utils';
 
 export function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, can, logout } = useAuth();
   const navigate = useNavigate();
   const { cart } = useCart();
   const { wishlist } = useWishlist();
+
+  const canUseWishlist = can(PERMISSIONS.WISHLIST_MANAGE);
+  const canUseCart = can(PERMISSIONS.CART_MANAGE);
+  const canViewOrders = can(PERMISSIONS.ORDERS_READ_OWN);
 
   const cartCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
   const wishlistCount = wishlist?.length ?? 0;
@@ -33,22 +38,28 @@ export function Navbar() {
         </NavLink>
 
         <nav className="flex items-center gap-2 sm:gap-3">
-          <NavLink to="/wishlist" className={iconLink} aria-label="Saved items">
-            <Heart className="h-4 w-4" aria-hidden strokeWidth={2.5} />
-            <span className="hidden sm:inline">Saved</span>
-            {wishlistCount > 0 && <Badge value={wishlistCount} />}
-          </NavLink>
+          {canUseWishlist && (
+            <NavLink to="/wishlist" className={iconLink} aria-label="Saved items">
+              <Heart className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+              <span className="hidden sm:inline">Saved</span>
+              {wishlistCount > 0 && <Badge value={wishlistCount} />}
+            </NavLink>
+          )}
 
-          <NavLink to="/cart" className={iconLink} aria-label="Shopping bag">
-            <ShoppingBag className="h-4 w-4" aria-hidden strokeWidth={2.5} />
-            <span className="hidden sm:inline">Bag</span>
-            {cartCount > 0 && <Badge value={cartCount} />}
-          </NavLink>
+          {canUseCart && (
+            <NavLink to="/cart" className={iconLink} aria-label="Shopping bag">
+              <ShoppingBag className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+              <span className="hidden sm:inline">Bag</span>
+              {cartCount > 0 && <Badge value={cartCount} />}
+            </NavLink>
+          )}
 
-          <NavLink to="/orders" className={iconLink} aria-label="Your orders">
-            <Receipt className="h-4 w-4" aria-hidden strokeWidth={2.5} />
-            <span className="hidden sm:inline">Orders</span>
-          </NavLink>
+          {canViewOrders && (
+            <NavLink to="/orders" className={iconLink} aria-label="Your orders">
+              <Receipt className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+              <span className="hidden sm:inline">Orders</span>
+            </NavLink>
+          )}
 
           <span className="hidden max-w-[12ch] truncate text-[11px] font-bold tracking-[0.12em] text-ink-soft uppercase md:inline">
             {user?.name}

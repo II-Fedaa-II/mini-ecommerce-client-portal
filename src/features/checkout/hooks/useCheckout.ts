@@ -1,5 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { cartKeys } from '@/features/cart/hooks/useCart';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { PERMISSIONS } from '@/features/auth/types';
 import { productKeys } from '@/features/products/hooks/useProducts';
 import { ordersApi } from '../api/ordersApi';
 import type { OrderHistoryQuery } from '../types';
@@ -19,13 +21,20 @@ export function usePlaceOrder() {
 }
 
 export function useOrder(id: string) {
-  return useQuery({ queryKey: ['orders', id], queryFn: () => ordersApi.getById(id), enabled: Boolean(id) });
+  const { can } = useAuth();
+  return useQuery({
+    queryKey: ['orders', id],
+    queryFn: () => ordersApi.getById(id),
+    enabled: Boolean(id) && can(PERMISSIONS.ORDERS_READ_OWN),
+  });
 }
 
 export function useOrderHistory(query: OrderHistoryQuery) {
+  const { can } = useAuth();
   return useQuery({
     queryKey: ['orders', 'mine', query],
     queryFn: () => ordersApi.listMine(query),
+    enabled: can(PERMISSIONS.ORDERS_READ_OWN),
     placeholderData: keepPreviousData,
   });
 }

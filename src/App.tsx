@@ -3,6 +3,7 @@ import { AppLayout } from '@/app/AppLayout';
 import { ProtectedRoute } from '@/app/ProtectedRoute';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
 import { SignUpPage } from '@/features/auth/pages/SignUpPage';
+import { PERMISSIONS } from '@/features/auth/types';
 import { CartPage } from '@/features/cart/pages/CartPage';
 import { CheckoutPage } from '@/features/checkout/pages/CheckoutPage';
 import { OrderConfirmationPage } from '@/features/checkout/pages/OrderConfirmationPage';
@@ -21,11 +22,23 @@ export function App() {
         <Route element={<AppLayout />}>
           <Route path="/products" element={<ProductListingPage />} />
           <Route path="/products/:id" element={<ProductDetailPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/wishlist" element={<WishlistPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/orders" element={<OrderHistoryPage />} />
-          <Route path="/orders/:id" element={<OrderConfirmationPage />} />
+
+          <Route element={<ProtectedRoute permission={PERMISSIONS.CART_MANAGE} />}>
+            <Route path="/cart" element={<CartPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission={PERMISSIONS.WISHLIST_MANAGE} />}>
+            <Route path="/wishlist" element={<WishlistPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission={PERMISSIONS.ORDERS_CREATE} />}>
+            <Route path="/checkout" element={<CheckoutPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission={PERMISSIONS.ORDERS_READ_OWN} />}>
+            <Route path="/orders" element={<OrderHistoryPage />} />
+            <Route path="/orders/:id" element={<OrderConfirmationPage />} />
+          </Route>
         </Route>
       </Route>
 

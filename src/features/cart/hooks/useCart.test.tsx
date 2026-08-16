@@ -7,7 +7,7 @@ import { useCart } from './useCart';
 // The cart hook only fetches for a signed-in shopper, so the auth state is stubbed
 // rather than driving a full login through the UI in every case.
 vi.mock('@/features/auth/hooks/useAuth', () => ({
-  useAuth: () => ({ isAuthenticated: true }),
+  useAuth: () => ({ isAuthenticated: true, can: () => true }),
 }));
 
 function wrapper({ children }: { children: ReactNode }) {

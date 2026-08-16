@@ -3,13 +3,15 @@ import { useQueryClient } from '@tanstack/react-query';
 import { refreshAccessToken } from '@/shared/api/httpClient';
 import { tokenStore } from '@/shared/api/tokenStore';
 import { authApi } from '../api/authApi';
-import type { AuthUser } from '../types';
+import type { AuthUser, Permission } from '../types';
 
 interface AuthContextValue {
   user: AuthUser | null;
   isAuthenticated: boolean;
   /** True until the initial silent-refresh attempt resolves, so routes don't flash. */
   isInitializing: boolean;
+  /** UI-level convenience only — the API re-checks permissions on every request. */
+  can: (permission: Permission) => boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -80,9 +82,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [queryClient]);
 
+  const can = useCallback(
+    (permission: Permission) => user?.role?.permissions.includes(permission) ?? false,
+    [user],
+  );
+
   const value = useMemo<AuthContextValue>(
-    () => ({ user, isAuthenticated: user !== null, isInitializing, login, register, logout }),
-    [user, isInitializing, login, register, logout],
+    () => ({ user, isAuthenticated: user !== null, isInitializing, can, login, register, logout }),
+    [user, isInitializing, can, login, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
