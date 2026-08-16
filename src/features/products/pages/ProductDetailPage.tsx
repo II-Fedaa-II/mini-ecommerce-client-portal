@@ -1,6 +1,6 @@
 import { Heart, Minus, Plus } from 'lucide-react';
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { PERMISSIONS } from '@/features/auth/types';
 import { useCart } from '@/features/cart/hooks/useCart';
@@ -17,19 +17,29 @@ import type { VariantSelection } from '../types';
 
 export function ProductDetailPage() {
   const { id = '' } = useParams();
+  const navigate = useNavigate();
+
   const { can } = useAuth();
   const { data: product, isLoading, isError, error, refetch } = useProduct(id);
   const { addItem } = useCart();
-  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+  const {
+    addItem: addToWishlist,
+    removeItem: removeFromWishlist,
+    isInWishlist,
+  } = useWishlist();
 
   const canUseCart = can(PERMISSIONS.CART_MANAGE);
   const canUseWishlist = can(PERMISSIONS.WISHLIST_MANAGE);
 
   const [selectedVariants, setSelectedVariants] = useState<VariantSelection[]>([]);
   const [quantity, setQuantity] = useState(1);
+
   const toast = useToast();
 
-  if (isLoading) return <LoadingState label="Loading product" />;
+  if (isLoading) {
+    return <LoadingState label="Loading product" />;
+  }
+
   if (isError || !product) {
     return (
       <main className="mx-auto max-w-3xl px-6 py-16">
@@ -42,9 +52,12 @@ export function ProductDetailPage() {
   }
 
   const loadedProduct = product;
+
   const missingVariant = loadedProduct.variants.find(
-    (variant) => !selectedVariants.some((entry) => entry.name === variant.name),
+    (variant) =>
+      !selectedVariants.some((entry) => entry.name === variant.name),
   );
+
   const isOutOfStock = loadedProduct.stock === 0;
   const wishlisted = isInWishlist(loadedProduct.id);
 
@@ -60,9 +73,12 @@ export function ProductDetailPage() {
         quantity,
         selectedVariants,
       });
+
       toast.success(`${loadedProduct.title} added to your bag.`);
     } catch (error) {
-      toast.error(errorMessage(error, 'Could not add this item to your bag.'));
+      toast.error(
+        errorMessage(error, 'Could not add this item to your bag.'),
+      );
     }
   }
 
@@ -76,18 +92,21 @@ export function ProductDetailPage() {
         toast.success('Saved for later.');
       }
     } catch (error) {
-      toast.error(errorMessage(error, 'Could not update your saved items.'));
+      toast.error(
+        errorMessage(error, 'Could not update your saved items.'),
+      );
     }
   }
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-8 sm:py-12">
-      <Link
-        to="/products"
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
         className="text-[11px] font-bold tracking-[0.14em] text-ink-soft uppercase transition-colors hover:text-ink"
       >
-        ← All products
-      </Link>
+        ← Back
+      </button>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:gap-12">
         <div className="border-2 border-ink bg-surface">
@@ -102,10 +121,14 @@ export function ProductDetailPage() {
         </div>
 
         <div className="flex flex-col">
-          <h1 className="display text-[clamp(2.5rem,6vw,4.5rem)]">{loadedProduct.title}</h1>
+          <h1 className="display text-[clamp(2.5rem,6vw,4.5rem)]">
+            {loadedProduct.title}
+          </h1>
 
           <p className="display tabular mt-3 text-5xl">
-            <span className="marker">{formatPrice(loadedProduct.price)}</span>
+            <span className="marker">
+              {formatPrice(loadedProduct.price)}
+            </span>
           </p>
 
           <p className="mt-6 max-w-prose leading-relaxed text-ink-soft">
@@ -118,7 +141,9 @@ export function ProductDetailPage() {
               isOutOfStock ? 'text-danger' : 'text-ink-soft',
             )}
           >
-            {isOutOfStock ? 'Out of stock' : `${loadedProduct.stock} in stock`}
+            {isOutOfStock
+              ? 'Out of stock'
+              : `${loadedProduct.stock} in stock`}
           </p>
 
           {loadedProduct.variants.length > 0 && (
@@ -136,10 +161,16 @@ export function ProductDetailPage() {
               <button
                 type="button"
                 aria-label="Decrease quantity"
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                onClick={() =>
+                  setQuantity((q) => Math.max(1, q - 1))
+                }
                 className="flex h-12 w-11 items-center justify-center transition-colors hover:bg-accent"
               >
-                <Minus className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+                <Minus
+                  className="h-4 w-4"
+                  aria-hidden
+                  strokeWidth={2.5}
+                />
               </button>
 
               <span
@@ -153,10 +184,21 @@ export function ProductDetailPage() {
               <button
                 type="button"
                 aria-label="Increase quantity"
-                onClick={() => setQuantity((q) => Math.min(Math.max(loadedProduct.stock, 1), q + 1))}
+                onClick={() =>
+                  setQuantity((q) =>
+                    Math.min(
+                      Math.max(loadedProduct.stock, 1),
+                      q + 1,
+                    ),
+                  )
+                }
                 className="flex h-12 w-11 items-center justify-center transition-colors hover:bg-accent"
               >
-                <Plus className="h-4 w-4" aria-hidden strokeWidth={2.5} />
+                <Plus
+                  className="h-4 w-4"
+                  aria-hidden
+                  strokeWidth={2.5}
+                />
               </button>
             </div>
 
@@ -175,11 +217,18 @@ export function ProductDetailPage() {
                 variant="outline"
                 size="icon"
                 className="h-12 w-12"
-                aria-label={wishlisted ? 'Remove from saved items' : 'Save for later'}
+                aria-label={
+                  wishlisted
+                    ? 'Remove from saved items'
+                    : 'Save for later'
+                }
                 onClick={() => void handleWishlistToggle()}
               >
                 <Heart
-                  className={cn('h-5 w-5', wishlisted && 'fill-current')}
+                  className={cn(
+                    'h-5 w-5',
+                    wishlisted && 'fill-current',
+                  )}
                   aria-hidden
                   strokeWidth={2.5}
                 />
