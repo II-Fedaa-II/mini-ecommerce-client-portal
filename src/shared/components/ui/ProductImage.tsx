@@ -1,4 +1,12 @@
 import { useState, type SyntheticEvent } from 'react';
+import { API_URL } from '@/shared/api/httpClient';
+
+/** Uploaded images come back as `/uploads/xxx`, relative to the API origin, not this
+ * app's — an absolute URL (seeded Unsplash photos) is left untouched. */
+export function resolveImageUrl(src: string | null | undefined): string | null {
+  if (!src) return null;
+  return /^https?:\/\//.test(src) ? src : `${API_URL}${src}`;
+}
 
 interface ProductImageProps {
   src: string | null;
@@ -14,13 +22,14 @@ interface ProductImageProps {
  */
 export function ProductImage({ src, alt, className, letterClassName }: ProductImageProps) {
   const [failed, setFailed] = useState(false);
+  const resolved = resolveImageUrl(src);
 
   function handleError(event: SyntheticEvent<HTMLImageElement>) {
     event.currentTarget.onerror = null;
     setFailed(true);
   }
 
-  if (!src || failed) {
+  if (!resolved || failed) {
     return (
       <div className="flex h-full w-full items-center justify-center">
         <span className={letterClassName ?? 'display text-6xl text-line'}>
@@ -31,6 +40,6 @@ export function ProductImage({ src, alt, className, letterClassName }: ProductIm
   }
 
   return (
-    <img src={src} alt={alt} loading="lazy" className={className} onError={handleError} />
+    <img src={resolved} alt={alt} loading="lazy" className={className} onError={handleError} />
   );
 }
