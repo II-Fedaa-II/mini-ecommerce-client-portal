@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from '@/app/AppLayout';
 import { ProtectedRoute } from '@/app/ProtectedRoute';
 import { LoginPage } from '@/features/auth/pages/LoginPage';
+import { SignUpPage } from '@/features/auth/pages/SignUpPage';
 import { CartPage } from '@/features/cart/pages/CartPage';
 import { CheckoutPage } from '@/features/checkout/pages/CheckoutPage';
 import { OrderConfirmationPage } from '@/features/checkout/pages/OrderConfirmationPage';
@@ -14,6 +15,7 @@ export function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignUpPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>

@@ -19,6 +19,22 @@ export const authHandlers = [
     return HttpResponse.json({ accessToken: 'mock-access-token', user: mockUser });
   }),
 
+  http.post(`${API_URL}/auth/register`, async ({ request }) => {
+    const body = (await request.json()) as { email: string; name: string };
+
+    if (body.email === mockUser.email) {
+      return HttpResponse.json(
+        { statusCode: 409, message: `An account with the email "${body.email}" already exists` },
+        { status: 409 },
+      );
+    }
+
+    return HttpResponse.json(
+      { accessToken: 'mock-access-token', user: { id: 'user-2', email: body.email, name: body.name } },
+      { status: 201 },
+    );
+  }),
+
   // Unauthenticated by default — tests that need a live session log in explicitly.
   http.post(`${API_URL}/auth/refresh`, () => new HttpResponse(null, { status: 401 })),
 

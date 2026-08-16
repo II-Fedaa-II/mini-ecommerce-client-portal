@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ApiError } from '@/shared/api/httpClient';
 import { Button } from '@/shared/components/ui/button';
 import { FieldLabel, Input } from '@/shared/components/ui/input';
@@ -98,6 +98,13 @@ export function LoginPage() {
               {isSubmitting ? 'Signing in…' : 'Sign in'}
             </Button>
           </form>
+
+          <p className="mt-6 text-sm text-ink-soft">
+            New here?{' '}
+            <Link to="/signup" className="font-semibold text-ink underline underline-offset-4">
+              Create an account
+            </Link>
+          </p>
 
           <div className="mt-8 border-2 border-dashed border-line p-4">
             <p className="text-[11px] font-bold tracking-[0.14em] text-ink-soft uppercase">

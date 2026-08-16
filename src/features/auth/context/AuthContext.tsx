@@ -11,6 +11,7 @@ interface AuthContextValue {
   /** True until the initial silent-refresh attempt resolves, so routes don't flash. */
   isInitializing: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -56,6 +57,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const register = useCallback(
+    async (email: string, password: string, name: string) => {
+      // Registration logs the account straight in, same as login — no separate
+      // "now sign in with the account you just made" step.
+      const response = await authApi.register(email, password, name);
+      tokenStore.set(response.accessToken);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(response.user));
+      setUser(response.user);
+    },
+    [],
+  );
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -68,8 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, isAuthenticated: user !== null, isInitializing, login, logout }),
-    [user, isInitializing, login, logout],
+    () => ({ user, isAuthenticated: user !== null, isInitializing, login, register, logout }),
+    [user, isInitializing, login, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
