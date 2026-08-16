@@ -2,6 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import { cartKeys } from '@/features/cart/hooks/useCart';
 import { productKeys } from '@/features/products/hooks/useProducts';
 import { ordersApi } from '../api/ordersApi';
+import type { OrderHistoryQuery } from '../types';
 
 export function usePlaceOrder() {
   const queryClient = useQueryClient();
@@ -21,10 +22,10 @@ export function useOrder(id: string) {
   return useQuery({ queryKey: ['orders', id], queryFn: () => ordersApi.getById(id), enabled: Boolean(id) });
 }
 
-export function useOrderHistory(page: number, limit: number) {
+export function useOrderHistory(query: OrderHistoryQuery) {
   return useQuery({
-    queryKey: ['orders', 'mine', page, limit],
-    queryFn: () => ordersApi.listMine(page, limit),
+    queryKey: ['orders', 'mine', query],
+    queryFn: () => ordersApi.listMine(query),
     placeholderData: keepPreviousData,
   });
 }

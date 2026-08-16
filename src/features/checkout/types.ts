@@ -23,3 +23,11 @@ export interface PaginatedOrders {
   limit: number;
   totalPages: number;
 }
+
+export interface OrderHistoryQuery {
+  page: number;
+  limit: number;
+  /** ISO date strings (YYYY-MM-DD), both inclusive. */
+  dateFrom?: string;
+  dateTo?: string;
+}

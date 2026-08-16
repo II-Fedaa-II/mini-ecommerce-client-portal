@@ -1,7 +1,8 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/shared/components/ui/button';
+import { FieldLabel, Input } from '@/shared/components/ui/input';
 import { Pagination } from '@/shared/components/ui/Pagination';
 import { EmptyState, ErrorState, LoadingState } from '@/shared/components/ui/states';
 import { errorMessage } from '@/shared/lib/errorMessage';
@@ -12,13 +13,76 @@ const PAGE_SIZE = 8;
 
 export function OrderHistoryPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error, isPlaceholderData, refetch } = useOrderHistory(page, PAGE_SIZE);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  const hasActiveFilter = Boolean(dateFrom || dateTo);
+
+  const { data, isLoading, isError, error, isPlaceholderData, refetch } = useOrderHistory({
+    page,
+    limit: PAGE_SIZE,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
+  });
+
+  function handleDateFromChange(value: string) {
+    setDateFrom(value);
+    setPage(1);
+  }
+
+  function handleDateToChange(value: string) {
+    setDateTo(value);
+    setPage(1);
+  }
+
+  function clearFilter() {
+    setDateFrom('');
+    setDateTo('');
+    setPage(1);
+  }
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-10 sm:py-14">
       <header className="mb-8 border-b-2 border-ink pb-6">
         <h1 className="display text-[clamp(3rem,9vw,6rem)]">Your orders</h1>
       </header>
+
+      <div className="mb-8 flex flex-wrap items-end gap-4 border-2 border-ink bg-surface p-5">
+        <div className="flex flex-col gap-2">
+          <FieldLabel htmlFor="date-from">From</FieldLabel>
+          <Input
+            id="date-from"
+            type="date"
+            value={dateFrom}
+            max={dateTo || undefined}
+            onChange={(e) => handleDateFromChange(e.target.value)}
+            className="h-11 w-44"
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <FieldLabel htmlFor="date-to">To</FieldLabel>
+          <Input
+            id="date-to"
+            type="date"
+            value={dateTo}
+            min={dateFrom || undefined}
+            onChange={(e) => handleDateToChange(e.target.value)}
+            className="h-11 w-44"
+          />
+        </div>
+
+        {hasActiveFilter && (
+          <button
+            type="button"
+            onClick={clearFilter}
+            className="mb-0.5 flex items-center gap-1 text-[11px] font-bold tracking-[0.1em] text-ink-soft uppercase transition-colors hover:text-danger"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden strokeWidth={2.5} />
+            Clear
+          </button>
+        )}
+      </div>
 
       {isLoading && <LoadingState label="Loading your orders" />}
       {isError && (
@@ -30,12 +94,22 @@ export function OrderHistoryPage() {
 
       {data && data.items.length === 0 && (
         <EmptyState
-          title="No orders yet"
-          description="Everything you buy will show up here, with the exact items and total for each order."
+          title={hasActiveFilter ? 'No orders in that range' : 'No orders yet'}
+          description={
+            hasActiveFilter
+              ? 'Try a wider date range.'
+              : 'Everything you buy will show up here, with the exact items and total for each order.'
+          }
           action={
-            <Button asChild>
-              <Link to="/products">Start shopping</Link>
-            </Button>
+            hasActiveFilter ? (
+              <Button variant="outline" onClick={clearFilter}>
+                Clear filter
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/products">Start shopping</Link>
+              </Button>
+            )
           }
         />
       )}
